@@ -15,6 +15,10 @@ model.engine
 *.onnx.data
 resnet18.onnx.data
 
+# ONNX 模型文件（很大，不适合版本控制）
+*.onnx
+resnet18.onnx
+
 # 训练权重文件
 *.pth
 *.pt
