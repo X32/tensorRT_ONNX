@@ -1,0 +1,95 @@
+# TensorRT 项目 Git 忽略文件
+
+# resnet_onnx 目录（用户要求完全排除）
+resnet_onnx/
+
+# TensorRT Engine 文件（很大，不适合版本控制）
+*.engine
+*.engine.headers
+resnet18.engine
+resnet18_fp16.engine
+resnet18_int8.engine
+model.engine
+
+# ONNX 外部数据文件（通常很大）
+*.onnx.data
+resnet18.onnx.data
+
+# 训练权重文件
+*.pth
+*.pt
+*.pth.tar
+*.safetensors
+
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 虚拟环境
+venv/
+env/
+ENV/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE 配置文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 大文件和二进制文件
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.avi
+
+# 数据文件
+*.csv
+*.json.gz
+*.pkl
+*.pth
+*.pt
+
+# ONNX 外部数据
+resnet18.onnx.data
+
+# 测试生成的文件
+test_output/
+performance_results/
+
+# Docker 相关
+*.tar
+*.tar.gz
+
+# 但保留重要的文档和代码
+!README.md
+!*.py
+!*.ipynb
+!*.md
+!requirements.txt
