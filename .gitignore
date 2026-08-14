@@ -2,6 +2,9 @@
 
 # resnet_onnx 目录（用户要求完全排除）
 resnet_onnx/
+qwen25_0.5b_trt/
+qwen25_1.5b_trt/
+TensorRT-Edge-LLM/
 
 # TensorRT Engine 文件（很大，不适合版本控制）
 *.engine
@@ -79,6 +82,18 @@ temp/
 *.pkl
 *.pth
 *.pt
+
+# 数据集文件 (Arrow/Parquet/HDF5 等格式)
+*.arrow
+*.parquet
+*.h5
+*.hdf5
+*.tfrecord
+
+# 数据集目录
+cnn_dailymail/
+datasets/
+data/
 
 # ONNX 外部数据
 resnet18.onnx.data
