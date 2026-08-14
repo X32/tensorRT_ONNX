@@ -1,0 +1,258 @@
+/jetson-run.sh check                                                            
+  == Jetson 环境检查 ==                                                           
+  -- L4T 版本（期望 R36.4 / JP6.2）:                                              
+  # R36 (release), REVISION: 5.0, GCID: 43688277, BOARD: generic, EABI: aarch64,  
+  DATE: Fri Jan 16 03:50:45 UTC 2026                                              
+  # KERNEL_VARIANT: oot                                                           
+  TARGET_USERSPACE_LIB_DIR=nvidia                                                 
+  TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia                  
+  -- 磁盘余量（容器 6.9GB + 模型 ~2GB，建议 ≥ 15GB）:                             
+  /dev/nvme0n1p1  937G  173G  716G  20% /                                         
+  -- Docker:                                                                      
+  Docker version 29.7.2, build a7dcaa6                                            
+     nvidia runtime: OK                                                           
+  -- 功耗模式（基准测试建议 MAXN 25W: sudo nvpmodel -m 0）:                       
+  NV Power Mode: MAXN_SUPER                                                       
+  2                                                                               
+  -- GPU 架构（期望 sm_87）:                                                      
+  /proc/device-tree/gpu-throttle-alert/compatible                                 
+  == 检查完成 ==                                                                  
+  (base) zy@ubuntu:~/Desktop/workplace/tensorRT/MLC_llm_deploy$ ./jetson-run.sh   
+  swap-on                                                                         
+  swap 已存在:                                                                    
+  NAME          TYPE        SIZE USED PRIO                                        
+  /var/swapfile file          8G   0B   -2                                        
+  /dev/zram0    partition 633.9M 512K    5                                        
+  /dev/zram1    partition 633.9M 512K    5                                        
+  /dev/zram2    partition 633.9M 512K    5                                        
+  /dev/zram3    partition 633.9M 512K    5                                        
+  /dev/zram4    partition 633.9M 256K    5                                        
+  /dev/zram5    partition 633.9M 256K    5                                        
+                                              
+
+
+
+./jetson-run.sh serve
+[sudo] password for zy: 
+Unable to find image 'dustynv/mlc:0.20.0-r36.4.0' locally
+0.20.0-r36.4.0: Pulling from dustynv/mlc
+28f09927602e: Pull complete 
+4be1db8bbbeb: Pull complete 
+6d0e22f340b8: Download complete 
+e7c6b0306d9f: Pull complete 
+6d0e22f340b8: Pull complete 
+984221cee4d9: Pull complete 
+1bf4ed7c5b1f: Pull complete 
+92a6d66ebff1: Pull complete 
+c1a403428a94: Pull complete 
+53418128c6f5: Pull complete 
+2d0a5ef22500: Pull complete 
+e2c2970193dc: Pull complete 
+70499c4173a4: Pull complete 
+0312aff381a4: Pull complete 
+cde83744526b: Pull complete 
+caa9c04315c9: Pull complete 
+db0b9f89727d: Pull complete 
+f0bb6441068f: Pull complete 
+712caac278da: Pull complete 
+a9c709c5f911: Pull complete 
+50c8373ad7de: Pull complete 
+f5516d4fd7aa: Pull complete 
+a6ffca798935: Pull complete 
+a70f77942ea1: Pull complete 
+2a160b6de27f: Pull complete 
+4e5f4758fe92: Pull complete 
+61f387b214b7: Pull complete 
+829cdad0a15d: Pull complete 
+3a16868ae151: Pull complete 
+4898f44022d8: Pull complete 
+5dc57808b3e1: Pull complete 
+b252a8e80cc5: Pull complete 
+f7b070b72908: Pull complete 
+7373d13625fa: Pull complete 
+0f4a8d0d3e28: Pull complete 
+34b157c6dbd8: Pull complete 
+ec950774147b: Pull complete 
+eceeed7cecd7: Pull complete 
+c82a9bf079d8: Pull complete 
+fba693e9a93b: Pull complete 
+Digest: sha256:f75d1f6189607a378fdff74509bdb21d3f4b6cc70302b06469b9bb9c778f07a4
+Status: Downloaded newer image for dustynv/mlc:0.20.0-r36.4.0
+b7d0d55f3840e4cdbd74765e6e9238937ec9fcd03bb7d8f5d18b9fdb8437238a
+serve 已后台启动（容器名 mlc-serve，端口 8000）
+验证: curl http://localhost:8000/v1/chat/completions \
+        -H 'Content-Type: application/json' \
+        -d '{"model":"Qwen2.5-1.5B-Instruct-q4f16_1-MLC","messages":[{"role":"user","content":"你好"}],"stream":true,"max_tokens":64}'
+日志: sudo docker logs -f mlc-serve
+
+容器命令修改
+
+ sudo docker rm -f mlc-serve
+
+  sudo docker run -d --runtime nvidia --name mlc-serve --network=host \
+    -v ~/work/mlc:/workspace -w /workspace \
+    dustynv/mlc:0.20.0-r36.4.0 \
+    mlc_llm serve HF://mlc-ai/Qwen2.5-1.5B-Instruct-q4f16_1-MLC \
+      --device cuda:0 \
+      --host 0.0.0.0 --port 8000 \
+      --mode local \
+      --overrides "max_num_sequence=1;max_total_seq_length=4096"
+
+  sudo docker logs -f mlc-serve
+
+
+下载无法完成，解决办法：
+
+  在 Jetson 宿主机上（不在容器里）用镜像站下载：
+
+  # 1. 确保装了 hf CLI（base 环境里有 conda，用 pip 装即可）
+  pip install -U "huggingface_hub[cli]" -i
+  https://pypi.tuna.tsinghua.edu.cn/simple
+
+  # 2. 从镜像站下载到 serve 的工作目录（~11GB 中 LFS 权重 ~1.2GB，几分钟）
+  export HF_ENDPOINT=https://hf-mirror.com
+  hf download mlc-ai/Qwen2.5-1.5B-Instruct-q4f16_1-MLC \
+    --local-dir ~/work/mlc/models/Qwen2.5-1.5B-Instruct-q4f16_1-MLC
+
+  # 3. 确认下载完整（应看到 params_shard_*.bin 和 mlc-chat-config.json）
+  ls -lh ~/work/mlc/models/Qwen2.5-1.5B-Instruct-q4f16_1-MLC
+
+
+
+
+ Compiling external modules
+[2026-08-14 11:58:24] INFO pipeline.py:56: Compilation complete! Exporting to disk
+[2026-08-14 12:00:10] INFO model_metadata.py:94: Total memory usage without KV cache:: 2155.31 MB (Parameters: 828.31 MB. Temporary buffer: 1327.00 MB)
+[2026-08-14 12:00:10] INFO model_metadata.py:102: To reduce memory usage, tweak `prefill_chunk_size`, `context_window_size` and `sliding_window_size`
+[2026-08-14 12:00:10] INFO compile.py:208: Generated: /tmp/tmpzd8_974x/lib.so
+[2026-08-14 12:00:12] INFO jit.py:126: Using compiled model lib: /root/.cache/mlc_llm/model_lib/373cb2d7a7b1ca681ce21ceeb475e829.so
+[2026-08-14 12:00:12] INFO engine_base.py:180: The selected engine mode is local. We choose small max batch size and KV cache capacity to use less GPU memory.
+[2026-08-14 12:00:12] INFO engine_base.py:205: If you don't have concurrent requests and only use the engine interactively, please select mode "interactive".
+[2026-08-14 12:00:12] INFO engine_base.py:210: If you have high concurrent requests and want to maximize the GPU memory utilization, please select mode "server".
+[12:00:13] /opt/mlc-llm/cpp/serve/config.cc:798: Under mode "local", max batch size 1 is specified by user, max KV cache token capacity 4096 is specified by user, prefill chunk size will be set to 2048. 
+[12:00:13] /opt/mlc-llm/cpp/serve/config.cc:798: Under mode "interactive", max batch size 1 is specified by user, max KV cache token capacity 4096 is specified by user, prefill chunk size will be set to 2048. 
+[12:00:13] /opt/mlc-llm/cpp/serve/config.cc:798: Under mode "server", max batch size 1 is specified by user, max KV cache token capacity 4096 is specified by user, prefill chunk size will be set to 2048. 
+[12:00:13] /opt/mlc-llm/cpp/serve/config.cc:879: The actual engine mode is "local". So max batch size is 1, max KV cache token capacity is 4096, prefill chunk size is 2048.
+[12:00:13] /opt/mlc-llm/cpp/serve/config.cc:884: Estimated total single GPU memory usage: 3670.867 MB (Parameters: 828.312 MB. KVCache: 174.208 MB. Temporary buffer: 2668.347 MB). The actual usage might be slightly larger than the estimated number.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58394 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+
+
+jtop
+(base) zy@ubuntu:~/Desktop/workplace/tensorRT/MLC_llm_deploy$ sudo nvpmodel -q
+NV Power Mode: MAXN_SUPER
+2
+(base) zy@ubuntu:~/Desktop/workplace/tensorRT/MLC_llm_deploy$ sudo jetson_clocks
+
+
+./benchmark.sh
+
+cat benchmark-result.txt 
+== MLC-LLM 性能基线 2026-08-14 20:17:31 ==
+目标: http://localhost:8000  模型: Qwen2.5-1.5B-Instruct-q4f16_1-MLC
+NV Power Mode: MAXN_SUPER
+2
+
+== 结果 ==
+TTFT（首 token） : 0.077 s
+生成 token 数     : 135
+总时延            : 2.308 s
+生成速度          : 60.05 tok/s（不含首 token）
+== 内存/功耗摘要 ==
+
+  📊 Qwen2.5-1.5B (q4f16_1) on Orin Nano Super 8GB — 实测基线
+
+  ┌──────────┬──────────────────────┬───────────────────────────────────┬──────────────────────┐
+  │   指标   │        实测值        │             对比预期              │  对比你的 TRT 0.5B   │
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤
+  │ 生成速度 │ 60.05 tok/s          │ 预期 20-40，超 50%                │ 21.9-30.5，约 2-2.7x │
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤ 
+  │ TTFT     │ 0.077s               │ 预期 <1s                          │ 1.9s，约 25x         │
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤ 
+  │ 峰值内存 │ 4.44GB / 7.6GB       │ 预期                              │ TRT 0.5B             │
+  │          │                      │ ~2.5-3GB（略高，含容器/runtime）  │ 4.23GB，基本持平     │ 
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤ 
+  │          │ 20.2W                │                                   │                      │
+  │ 整机功耗 │ 峰值（MAXN_SUPER 25W │ —                                 │ 15.2W，略高但可接受  │
+  │          │  内）                │                                   │                      │ 
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤
+  │ GPU      │ 98% @ 1013MHz        │ 满负荷                            │ —                    │
+  │ 利用率   │                      │                                   │                      │
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤
+  │ 温度     │ GPU 56.8°C           │ 健康                              │ —                    │
+  ├──────────┼──────────────────────┼───────────────────────────────────┼──────────────────────┤
+  │ 余量     │ ~3.1GB 内存、~5W     │ 可扩 3B 或长上下文                │ —                    │
+  │          │ 功耗                 │                                   │                      │
+  └──────────┴──────────────────────┴───────────────────────────────────┴──────────────────────┘
+
+  两点说明：
+  - 内存 4.44GB 比文档预期高：包含了容器、Python runtime、JIT 缓存等开销，且
+  max_total_seq_length=4096 的 KV cache 预留也占一份。这是统一内存架构的正常水位，不是泄漏。
+  - 第二轮 TTFT 0.077s 比首轮 0.172s 更快：prefix cache（radix 模式默认开启）命中了相同 prompt
+  前缀，热身后效果更好。
+  - ~3.1GB 余量意味着 3B 模型（~5.5-6GB 峰值）大概率也能跑，但会比较紧，如果要跑 3B 建议把
+  max_total_seq_length 降到 2048。
+
+
+ 在 Jetson 上部署 3B 模型（3 步）
+
+  # 1. 拷更新脚本到 Jetson
+scp -r scripts/  zy@192.168.4.52:/home/zy/Desktop/workplace/tensorRT/MLC_llm_deploy
+
+
+
+  # 2. Jetson 上下载 3B 权重（约 1.9GB，62 个 shard）
+  MODEL_SIZE=3B ./jetson-run.sh download
+
+
+
+ls -lh ~/work/mlc/models/Qwen2.5-3B-Instruct-q4f16_1-MLC/
+
+
+  # 3. Jetson 上启动 3B 服务（压参数到 2048 上下文适配 8GB）
+  MODEL_SIZE=3B MAX_SEQ_LEN=2048 ./jetson-run.sh serve
+
+  # 监控日志（JIT 编译比 1.5B 长，耐心等待）
+  sudo docker logs -f mlc-serve
+
+
+
+  📊 性能对比表
+
+  ┌────────────┬──────────┬─────────────┬────────────────────────────┐
+  │    指标    │   1.5B   │     3B      │            评价            │
+  ├────────────┼──────────┼─────────────┼────────────────────────────┤
+  │ 生成速度   │ 60 tok/s │ 33.11 tok/s │ 慢 45%，但在可接受范围     │
+  ├────────────┼──────────┼─────────────┼────────────────────────────┤
+  │ TTFT       │ 0.077s   │ 0.175s      │ 慢 2.3x，依然很快          │
+  ├────────────┼──────────┼─────────────┼────────────────────────────┤
+  │ 峰值内存   │ 4.44GB   │ 5.02GB      │ 只增 0.58GB，余量 2.5GB ✅ │
+  ├────────────┼──────────┼─────────────┼────────────────────────────┤
+  │ GPU 利用率 │ 96%      │ 99%         │ 满负荷运行                 │
+  ├────────────┼──────────┼─────────────┼────────────────────────────┤
+  │ 整机功耗   │ 20.2W    │ 21.4W       │ 在 25W 上限内              │
+  ├────────────┼──────────┼─────────────┼────────────────────────────┤
+  │ GPU 温度   │ 57°C     │ 60°C        │ 完全健康                   │
+  └────────────┴──────────┴─────────────┴────────────────────────────┘
+
+  ✅ 关键验证成功
+
+  1. 内存控制完美：5.02GB 远低于预期的 5.5-6GB，MAX_SEQ_LEN=2048 参数优化有效
+  2. 速度合理：33.11 tok/s 是非常实用的速度（比 1.5B 慢但智能能力更强）
+  3. 系统健康：功耗 21.4W、温度 60°C，完全在安全范围内
+  4. GPU 满载：99% 利用率说明资源充分利用
+
+  🎯 两个模型都成功验证
+
+  你现在可以在 1.5B（速度优先） 和 3B（智能优先） 之间灵活切换：
+
+  # 切换到 1.5B（60 tok/s，更快响应）
+  ./jetson-run.sh stop
+  ./jetson-run.sh serve  # 默认 1.5B
+
+  # 切换到 3B（33 tok/s，更强智能）  
+  ./jetson-run.sh stop
+  MODEL_SIZE=3B MAX_SEQ_LEN=2048 ./jetson-run.sh serve

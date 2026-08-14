@@ -1,0 +1,11 @@
+== MLC-LLM 性能基线 2026-08-14 20:52:34 ==
+目标: http://localhost:8000  模型: Qwen2.5-3B-Instruct-q4f16_1-MLC
+NV Power Mode: MAXN_SUPER
+2
+
+== 结果 ==
+TTFT（首 token） : 0.175 s
+生成 token 数     : 144
+总时延            : 4.494 s
+生成速度          : 33.11 tok/s（不含首 token）
+== 内存/功耗摘要 ==
