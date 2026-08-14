@@ -204,6 +204,8 @@ cd qwen25_0.5b_trt
 | ⚡ [TensorRT-Edge-LLM Plugin 实施报告](DOC/TensorRT-Edge-LLM_经济级应用算子实施报告.md) | Attention Plugin 与算子优化 |
 | 🌐 [Edge_llm_deploy 说明](Edge_llm_deploy/README.md) | HTTP 服务部署与 OpenAI API 对接 |
 | 📊 [性能测试说明](qwen25_0.5b_trt/PERF_TEST_README.md) | 自动化性能测试与指标采集 |
+参考博客
+https://blog.csdn.net/x32sky/article/details/163743580?spm=1001.2014.3001.5501
 
 ---
 
