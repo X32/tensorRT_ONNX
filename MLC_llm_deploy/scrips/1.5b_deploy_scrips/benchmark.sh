@@ -5,6 +5,9 @@
 # 用法: ./benchmark.sh [jetson-ip]（默认 localhost）
 # 前置: ./jetson-run.sh serve 已启动；建议先 sudo nvpmodel -m 0（25W MAXN）
 #
+# 环境变量:
+#   MODEL_SIZE=3B             # 切换到 3B 模型（默认 1.5B）
+#
 # 采集项: TTFT / 总时延 / tok/s / 峰值内存（tegrastats）
 # 输出:   终端报告 + benchmark-result.txt
 # ============================================================================
@@ -12,7 +15,8 @@ set -euo pipefail
 
 HOST="${1:-localhost}"
 PORT=8000
-MODEL="Qwen2.5-1.5B-Instruct-q4f16_1-MLC"
+MODEL_SIZE="${MODEL_SIZE:-1.5B}"
+MODEL="Qwen2.5-${MODEL_SIZE}-Instruct-q4f16_1-MLC"
 OUT="benchmark-result.txt"
 
 PROMPT="请用中文介绍一下你自己，包括你的能力和你擅长的任务。"
