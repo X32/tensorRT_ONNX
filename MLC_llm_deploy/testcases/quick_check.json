@@ -1,0 +1,54 @@
+{
+  "test_cases": [
+    {
+      "type": "math",
+      "question": "计算 25 * 34 + 17 = ?",
+      "answer": "857"
+    },
+    {
+      "type": "knowledge",
+      "question": "中国的首都是哪里？",
+      "answer": "北京"
+    },
+    {
+      "type": "reasoning",
+      "question": "如果今天是星期三，后天是星期几？",
+      "answer": "星期五"
+    },
+    {
+      "type": "calculation",
+      "question": "100 - 37 + 15 = ?",
+      "answer": "78"
+    },
+    {
+      "type": "knowledge",
+      "question": "一年有多少个月？",
+      "answer": "12"
+    },
+    {
+      "type": "math",
+      "question": "12 * 12 = ?",
+      "answer": "144"
+    },
+    {
+      "type": "reasoning",
+      "question": "如果昨天是星期一，今天是星期几？",
+      "answer": "星期二"
+    },
+    {
+      "type": "knowledge",
+      "question": "水的化学式是什么？",
+      "answer": "H2O"
+    },
+    {
+      "type": "calculation",
+      "question": "45 + 67 = ?",
+      "answer": "112"
+    },
+    {
+      "type": "reasoning",
+      "question": "一个苹果加两个苹果等于几个苹果？",
+      "answer": "三个"
+    }
+  ]
+}

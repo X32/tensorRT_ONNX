@@ -1,0 +1,154 @@
+{
+  "test_cases": [
+    {
+      "type": "math",
+      "question": "一个三角形的三个内角分别是 45°、60°、75°，这是一个什么类型的三角形？",
+      "answer": "锐角三角形"
+    },
+    {
+      "type": "knowledge",
+      "question": "《红楼梦》的作者是谁？",
+      "answer": "曹雪芹"
+    },
+    {
+      "type": "physics",
+      "question": "光在真空中的传播速度大约是多少？",
+      "answer": "3×10^8 m/s"
+    },
+    {
+      "type": "chemistry",
+      "question": "氧气的化学式是什么？",
+      "answer": "O2"
+    },
+    {
+      "type": "history",
+      "question": "中华人民共和国成立于哪一年？",
+      "answer": "1949"
+    },
+    {
+      "type": "geography",
+      "question": "世界上最高的山峰是什么？",
+      "answer": "珠穆朗玛峰"
+    },
+    {
+      "type": "math",
+      "question": "2的8次方等于多少？",
+      "answer": "256"
+    },
+    {
+      "type": "literature",
+      "question": "《诗经》是中国最早的一部什么总集？",
+      "answer": "诗歌"
+    },
+    {
+      "type": "biology",
+      "question": "人体最大的器官是什么？",
+      "answer": "皮肤"
+    },
+    {
+      "type": "math",
+      "question": "圆的面积公式是什么？",
+      "answer": "πr²"
+    },
+    {
+      "type": "geography",
+      "question": "长江发源于哪里？",
+      "answer": "青藏高原"
+    },
+    {
+      "type": "physics",
+      "question": "牛顿第一定律又叫什么定律？",
+      "answer": "惯性定律"
+    },
+    {
+      "type": "chemistry",
+      "question": "金的化学符号是什么？",
+      "answer": "Au"
+    },
+    {
+      "type": "history",
+      "question": "秦始皇统一六国建立了什么朝代？",
+      "answer": "秦朝"
+    },
+    {
+      "type": "math",
+      "question": "平行四边形的面积公式是什么？",
+      "answer": "底×高"
+    },
+    {
+      "type": "literature",
+      "question": "李白是什么朝代的诗人？",
+      "answer": "唐朝"
+    },
+    {
+      "type": "biology",
+      "question": "植物进行光合作用的主要场所是什么？",
+      "answer": "叶绿体"
+    },
+    {
+      "type": "geography",
+      "question": "世界上面积最大的国家是哪个？",
+      "answer": "俄罗斯"
+    },
+    {
+      "type": "physics",
+      "question": "声音在空气中的传播速度大约是多少？",
+      "answer": "340 m/s"
+    },
+    {
+      "type": "chemistry",
+      "question": "水的分子式是什么？",
+      "answer": "H2O"
+    },
+    {
+      "type": "history",
+      "question": "第一次工业革命起源于哪个国家？",
+      "answer": "英国"
+    },
+    {
+      "type": "math",
+      "question": "一个正方体的体积公式是什么？",
+      "answer": "棱长³"
+    },
+    {
+      "type": "literature",
+      "question": "《西游记》中的主要角色孙悟空的武器是什么？",
+      "answer": "金箍棒"
+    },
+    {
+      "type": "biology",
+      "question": "人体需要的主要营养物质包括碳水化合物、蛋白质和什么？",
+      "answer": "脂肪"
+    },
+    {
+      "type": "geography",
+      "question": "赤道穿过哪些洲？",
+      "answer": "非洲、南美洲、亚洲"
+    },
+    {
+      "type": "physics",
+      "question": "阿基米德原理是关于什么浮力的原理？",
+      "answer": "液体浮力"
+    },
+    {
+      "type": "chemistry",
+      "question": "碳的化学符号是什么？",
+      "answer": "C"
+    },
+    {
+      "type": "history",
+      "question": "孔子生活在哪个时期？",
+      "answer": "春秋时期"
+    },
+    {
+      "type": "math",
+      "question": "一元二次方程的求根公式中的判别式是什么？",
+      "answer": "b²-4ac"
+    },
+    {
+      "type": "literature",
+      "question": "《三国演义》的作者是谁？",
+      "answer": "罗贯中"
+    }
+  ]
+}
