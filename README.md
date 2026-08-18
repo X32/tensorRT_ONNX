@@ -16,32 +16,32 @@
 
 ### 🖼️ 计算机视觉：ResNet18 图像分类
 
-| 推理方式 | 平均延迟 | 吞吐量 | vs ONNX Runtime | 模型大小 |
-|----------|----------|--------|-----------------|----------|
-| ONNX Runtime | 39.6 ms | 25 QPS | 1.0x（基准） | 92 MB |
-| **TensorRT FP32** | 5.4 ms | 187 QPS | **7.4x** | 45 MB |
-| **TensorRT FP16** | 2.7 ms | 374 QPS | **15x** ⭐ | 23 MB |
-| **TensorRT INT8** | 1.3 ms | 748 QPS | **30x** | 12 MB |
+| 推理方式                | 平均延迟 | 吞吐量  | vs ONNX Runtime  | 模型大小 |
+| ----------------------- | -------- | ------- | ---------------- | -------- |
+| ONNX Runtime            | 39.6 ms  | 25 QPS  | 1.0x（基准）     | 92 MB    |
+| **TensorRT FP32** | 5.4 ms   | 187 QPS | **7.4x**   | 45 MB    |
+| **TensorRT FP16** | 2.7 ms   | 374 QPS | **15x** ⭐ | 23 MB    |
+| **TensorRT INT8** | 1.3 ms   | 748 QPS | **30x**    | 12 MB    |
 
-> 各精度版本预测结果完全一致，量化无精度损失。**生产环境推荐 FP16**，边缘极限场景用 INT8。
+**生产环境推荐 FP16**，边缘极限场景用 INT8。
 
 ### 🤖 大语言模型：多技术路线部署
 
 #### TensorRT-Edge-LLM 路线：Qwen2.5-0.5B 对话推理
 
-| 推理方式 | 模型大小 | 内存占用 | 推理能力 | 部署方式 |
-|----------|----------|--------|----------|----------|
-| **Qwen2.5-0.5B** | 943 MB | ~2-3 GB | 中英文对话、代码生成 | TensorRT + HTTP API |
-| TensorRT-Edge-LLM | 优化引擎 | 高效推理 | 支持 Plugin 模式 | 一键部署脚本 |
+| 推理方式               | 模型大小 | 内存占用 | 推理能力             | 部署方式            |
+| ---------------------- | -------- | -------- | -------------------- | ------------------- |
+| **Qwen2.5-0.5B** | 943 MB   | ~2-3 GB  | 中英文对话、代码生成 | TensorRT + HTTP API |
+| TensorRT-Edge-LLM      | 优化引擎 | 高效推理 | 支持 Plugin 模式     | 一键部署脚本        |
 
 > 成功在 Jetson 8GB 内存设备上部署 0.5B 参数模型，通过 **完整的自动化部署套件** 实现从环境检查到性能测试的全程自动化部署。
 
 #### MLC-LLM 路线：Qwen2.5-1.5B/3B 编译器优化
 
-| 模型 | 生成速度 | TTFT | 峰值内存 | 智能能力 | 适用场景 |
-|------|----------|------|----------|----------|----------|
-| **1.5B** | 60 tok/s | 0.077s | 4.44GB | 中等 | 日常对话、实时响应 |
-| **3B** | 25-35 tok/s | ~0.15s | ~5.5GB | 更强 | 复杂推理、专业任务 |
+| 模型           | 生成速度    | TTFT   | 峰值内存 | 智能能力 | 适用场景           |
+| -------------- | ----------- | ------ | -------- | -------- | ------------------ |
+| **1.5B** | 60 tok/s    | 0.077s | 4.44GB   | 中等     | 日常对话、实时响应 |
+| **3B**   | 25-35 tok/s | ~0.15s | ~5.5GB   | 更强     | 复杂推理、专业任务 |
 
 > 基于 MLC-LLM v0.20.0 编译器路线，PC 交叉编译 + Jetson 运行，突破 8GB 内存限制，支持更大参数模型。
 
@@ -49,16 +49,16 @@
 
 ## 🛠️ 环境信息
 
-| 项目 | 版本 |
-|------|------|
-| 设备 | NVIDIA Jetson Orin（ARM64）|
-| 系统 | Ubuntu 22.04 + JetPack 6.x（L4T 36.5）|
-| CUDA | 12.6 |
-| TensorRT | 10.3.0 |
-| PyTorch | 2.x（jetson-containers 镜像内置）|
-| TensorRT-Edge-LLM | 0.6.0 |
-| MLC-LLM | 0.20.0 |
-| 部署方式 | Docker 容器（基于 `dustynv/jetson-containers`）|
+| 项目              | 版本                                              |
+| ----------------- | ------------------------------------------------- |
+| 设备              | NVIDIA Jetson Orin（ARM64）                       |
+| 系统              | Ubuntu 22.04 + JetPack 6.x（L4T 36.5）            |
+| CUDA              | 12.6                                              |
+| TensorRT          | 10.3.0                                            |
+| PyTorch           | 2.x（jetson-containers 镜像内置）                 |
+| TensorRT-Edge-LLM | 0.6.0                                             |
+| MLC-LLM           | 0.20.0                                            |
+| 部署方式          | Docker 容器（基于 `dustynv/jetson-containers`） |
 
 ---
 
@@ -236,6 +236,7 @@ response = client.chat.completions.create(
 )
 print(response.choices[0].message.content)
 ```
+
 ```
 
 ---
@@ -296,43 +297,45 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 
 ### 计算机视觉（ResNet18）
 
-| 文档 | 说明 |
-|------|------|
-| 📖 [技术博客（完整版）](DOC/TECH_BLOG_Jetson_TensorRT_Complete_Guide.md) | 环境搭建 → 模型转换 → 引擎生成 → 推理 → 部署全流程 |
-| 📄 [技术博客（精简版）](DOC/TECH_BLOG_CONCISE.md) | 核心要点与性能数据，5 分钟速读 |
-| 📊 [性能测试报告](DOC/PERFORMANCE_REPORT.md) | 多精度详细测试数据与分析 |
-| 🐳 [镜像环境配置报告](DOC/TensorRT_镜像环境配置完整报告.md) | Docker 镜像构建与故障排除 |
+| 文档                                                                 | 说明                                                   |
+| -------------------------------------------------------------------- | ------------------------------------------------------ |
+| 📖[技术博客（完整版）](DOC/TECH_BLOG_Jetson_TensorRT_Complete_Guide.md) | 环境搭建 → 模型转换 → 引擎生成 → 推理 → 部署全流程 |
+| 📄[技术博客（精简版）](DOC/TECH_BLOG_CONCISE.md)                        | 核心要点与性能数据，5 分钟速读                         |
+| 📊[性能测试报告](DOC/PERFORMANCE_REPORT.md)                             | 多精度详细测试数据与分析                               |
+| 🐳[镜像环境配置报告](DOC/TensorRT_镜像环境配置完整报告.md)              | Docker 镜像构建与故障排除                              |
 
 ### 大语言模型（TensorRT-Edge-LLM）
 
-| 文档 | 说明 |
-|------|------|
-| 📘 [TensorRT-Edge-LLM 经典应用全流程实施报告](DOC/TensorRT-Edge-LLM_经典应用全流程实施报告_v0.6.0.md) | LLM 框架部署、引擎构建、推理优化 |
-| 🔧 [TensorRT-Edge-LLM C++ 编程指南](DOC/TensorRT-Edge-LLM_C++_编程指南.md) | C++ API 使用与自定义开发 |
-| ⚡ [TensorRT-Edge-LLM Plugin 实施报告](DOC/TensorRT-Edge-LLM_经济级应用算子实施报告.md) | Attention Plugin 与算子优化 |
-| 🌐 [Edge_llm_deploy 说明](Edge_llm_deploy/README.md) | HTTP 服务部署与 OpenAI API 对接 |
-| 📊 [性能测试说明](qwen25_0.5b_trt/PERF_TEST_README.md) | 自动化性能测试与指标采集 |
+| 文档                                                                                              | 说明                             |
+| ------------------------------------------------------------------------------------------------- | -------------------------------- |
+| 📘[TensorRT-Edge-LLM 经典应用全流程实施报告](DOC/TensorRT-Edge-LLM_经典应用全流程实施报告_v0.6.0.md) | LLM 框架部署、引擎构建、推理优化 |
+| 🔧[TensorRT-Edge-LLM C++ 编程指南](DOC/TensorRT-Edge-LLM_C++_编程指南.md)                            | C++ API 使用与自定义开发         |
+| ⚡[TensorRT-Edge-LLM Plugin 实施报告](DOC/TensorRT-Edge-LLM_经济级应用算子实施报告.md)               | Attention Plugin 与算子优化      |
+| 🌐[Edge_llm_deploy 说明](Edge_llm_deploy/README.md)                                                  | HTTP 服务部署与 OpenAI API 对接  |
+| 📊[性能测试说明](qwen25_0.5b_trt/PERF_TEST_README.md)                                                | 自动化性能测试与指标采集         |
 
 ### 大语言模型（MLC-LLM）
 
-| 文档 | 说明 |
-|------|------|
-| 🚀 [MLC-LLM 实验报告](MLC_llm_deploy/DOC/MLC-LLM-Qwen2.5-1.5B-3B-Jetson实验报告.md) | 8GB 设备部署 1.5B/3B 模型实验数据与分析 |
-| 📖 [MLC-LLM 实操文档](MLC_llm_deploy/DOC/Jetson%20Orin%208GB%20部署%20Qwen2.5%201.5B_3B：MLC-LLM%20实操文档.md) | 编译器路线完整部署指南 |
-| 🔧 [Qwen2.5-3B 部署指南](MLC_llm_deploy/DOC/Qwen2.5-3B部署指南.md) | 3B 模型特定配置说明 |
-| 🌐 [MLC_llm_deploy 说明](MLC_llm_deploy/README.md) | 部署套件使用说明与系统集成 |
+| 文档                                                                                                        | 说明                                    |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| 🚀[MLC-LLM 实验报告](MLC_llm_deploy/DOC/MLC-LLM-Qwen2.5-1.5B-3B-Jetson实验报告.md)                             | 8GB 设备部署 1.5B/3B 模型实验数据与分析 |
+| 📖[MLC-LLM 实操文档](MLC_llm_deploy/DOC/Jetson%20Orin%208GB%20部署%20Qwen2.5%201.5B_3B：MLC-LLM%20实操文档.md) | 编译器路线完整部署指南                  |
+| 🔧[Qwen2.5-3B 部署指南](MLC_llm_deploy/DOC/Qwen2.5-3B部署指南.md)                                              | 3B 模型特定配置说明                     |
+| 🌐[MLC_llm_deploy 说明](MLC_llm_deploy/README.md)                                                              | 部署套件使用说明与系统集成              |
 
 ---
 
 ## 🔑 关键技术点
 
 ### 计算机视觉优化
+
 - **Docker 容器化**：基于 `jetson-containers`，环境可重复、易部署
 - **TensorRT 优化**：图融合、内核自动调优、Tensor Core 加速
 - **多精度推理**：FP32/FP16/INT8，按场景选择
 - **TensorRT 10.3 API 兼容**：使用 `num_io_tensors` / `get_tensor_name` / `execute_v2` 新 API
 
 ### 大语言模型部署（TensorRT-Edge-LLM）
+
 - **TensorRT-Edge-LLM 框架**：专门为边缘设备优化的 LLM 推理
 - **Attention Plugin 优化**：融合注意力计算，提升推理效率
 - **内存管理**：8GB 设备成功部署 0.5B 参数模型
@@ -340,6 +343,7 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 - **多指标性能监控**：内存、功耗、温度、利用率全面采集
 
 ### 大语言模型部署（MLC-LLM）
+
 - **编译器路线**：基于 TVM 的编译优化，生成 Jetson 专属 CUDA 库
 - **交叉编译部署**：PC 编译 + Jetson 运行，绕过 8GB 构建期限制
 - **q4f16_1 量化**：保持推理精度的同时显著降低内存占用
@@ -352,23 +356,23 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 
 ### 技术路线选择
 
-| 需求场景 | 推荐方案 | 理由 |
-|----------|----------|------|
+| 需求场景           | 推荐方案               | 理由                                 |
+| ------------------ | ---------------------- | ------------------------------------ |
 | 实时响应（<100ms） | TensorRT-Edge-LLM 0.5B | 轻量级，低延迟，API 兼容，自动化部署 |
-| 高质量对话 | MLC-LLM 1.5B | 智能更强，60 tok/s 速度优秀 |
-| 复杂推理任务 | MLC-LLM 3B | 最佳智能表现，25-35 tok/s 可接受 |
-| 图像识别 | TensorRT ResNet18 FP16 | 15x 加速，生产环境推荐 |
-| 快速集成 | TensorRT-Edge-LLM 0.5B | OpenAI 兼容，一键部署脚本 |
+| 高质量对话         | MLC-LLM 1.5B           | 智能更强，60 tok/s 速度优秀          |
+| 复杂推理任务       | MLC-LLM 3B             | 最佳智能表现，25-35 tok/s 可接受     |
+| 图像识别           | TensorRT ResNet18 FP16 | 15x 加速，生产环境推荐               |
+| 快速集成           | TensorRT-Edge-LLM 0.5B | OpenAI 兼容，一键部署脚本            |
 
 ### 设备选择指南
 
-| 设备内存 | 推荐模型 | 用途场景 |
-|----------|----------|----------|
-| 4GB | ResNet18 FP16/INT8 | 图像分类、目标检测 |
-| 8GB | Qwen2.5-0.5B + ResNet18 | 对话推理 + 计算机视觉 |
-| 8GB (优化) | Qwen2.5-1.5B (MLC) | 高质量对话 + 实时响应 |
-| 8GB (极限) | Qwen2.5-3B (MLC) | 复杂推理 + 专业任务 |
-| 16GB+ | 多模型组合 | 复杂多模态应用 |
+| 设备内存   | 推荐模型                | 用途场景              |
+| ---------- | ----------------------- | --------------------- |
+| 4GB        | ResNet18 FP16/INT8      | 图像分类、目标检测    |
+| 8GB        | Qwen2.5-0.5B + ResNet18 | 对话推理 + 计算机视觉 |
+| 8GB (优化) | Qwen2.5-1.5B (MLC)      | 高质量对话 + 实时响应 |
+| 8GB (极限) | Qwen2.5-3B (MLC)        | 复杂推理 + 专业任务   |
+| 16GB+      | 多模型组合              | 复杂多模态应用        |
 
 ### 精度选择建议
 
