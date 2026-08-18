@@ -1,0 +1,16 @@
+# TensorRT-Edge-LLM HTTP 服务依赖
+# Python >= 3.10
+
+# Web 框架
+fastapi>=0.68.0
+uvicorn[standard]>=0.15.0
+
+# 数据验证
+pydantic>=1.8.0
+
+# OpenAI SDK (客户端测试)
+openai>=1.0.0
+
+# 可选：性能监控
+# psutil>=5.9.0  # 系统资源监控
+# py3nvml>=0.2.7  # NVIDIA GPU 监控

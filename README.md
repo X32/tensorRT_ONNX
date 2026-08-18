@@ -1,17 +1,18 @@
 # Jetson 边缘 AI 部署实战
 
-在 NVIDIA Jetson Orin 上构建高性能边缘 AI 应用，涵盖 **计算机视觉** 和 **大语言模型** 两大领域。本项目提供从 **模型优化 → 部署实施 → 性能调优 → 服务集成** 的完整技术方案，通过 **TensorRT** 和 **MLC-LLM** 两大技术路线，在 8GB 内存约束下实现从 **0.5B 到 3B** 参数模型的高效推理，实测性能达 **60 tok/s**，相比 ONNX Runtime 提升 **7-30 倍**。
+在 NVIDIA Jetson Orin 上构建高性能边缘 AI 应用，涵盖 **计算机视觉** 和 **大语言模型** 两大领域。本项目提供从 **模型优化 → 自动化部署 → 性能调优 → 服务集成** 的完整技术方案，通过 **TensorRT** 和 **MLC-LLM** 两大技术路线配合 **一键部署脚本**，在 8GB 内存约束下实现从 **0.5B 到 3B** 参数模型的高效推理，实测性能达 **60 tok/s**，相比 ONNX Runtime 提升 **7-30 倍**。
 
 ## 🎯 核心价值
 
 - **🚀 性能突破**：通过 TensorRT 优化实现 7-30 倍推理加速，通过 MLC-LLM 编译器路线突破 8GB 内存限制
+- **🤖 一键部署**：提供完整的自动化部署脚本，从环境检查到性能测试全程自动化，降低部署门槛
 - **🔧 技术对比**：提供运行时优化（TensorRT-Edge-LLM）与编译时优化（MLC-LLM）两大技术路线的实测对比
 - **📊 完整方案**：覆盖从环境搭建、模型转换、引擎构建到 HTTP 服务部署的全流程
 - **🌐 生产就绪**：Docker 容器化部署，OpenAI API 兼容接口，支持快速集成到实际应用
 
 ---
 
-## 🚀 核心成果
+## 🚀 核心成果与部署能力
 
 ### 🖼️ 计算机视觉：ResNet18 图像分类
 
@@ -31,9 +32,9 @@
 | 推理方式 | 模型大小 | 内存占用 | 推理能力 | 部署方式 |
 |----------|----------|--------|----------|----------|
 | **Qwen2.5-0.5B** | 943 MB | ~2-3 GB | 中英文对话、代码生成 | TensorRT + HTTP API |
-| TensorRT-Edge-LLM | 优化引擎 | 高效推理 | 支持 Plugin 模式 | 容器化部署 |
+| TensorRT-Edge-LLM | 优化引擎 | 高效推理 | 支持 Plugin 模式 | 一键部署脚本 |
 
-> 成功在 Jetson 8GB 内存设备上部署 0.5B 参数模型，通过 TensorRT-Edge-LLM 框架实现高效推理。
+> 成功在 Jetson 8GB 内存设备上部署 0.5B 参数模型，通过 **完整的自动化部署套件** 实现从环境检查到性能测试的全程自动化部署。
 
 #### MLC-LLM 路线：Qwen2.5-1.5B/3B 编译器优化
 
@@ -92,9 +93,15 @@ tensorRT/
 │   │   │   └── PERF_TEST_README.md      # 性能测试说明
 │   │   │
 │   │   └── Edge_llm_deploy/
+│   │       ├── README.md                # 详细部署说明文档
+│   │       ├── requirements.txt         # Python 依赖管理
 │   │       ├── llm_server.py            # OpenAI 兼容 HTTP 服务器
 │   │       ├── llm_client.py            # 客户端示例
-│   │       └── README.md                # 服务部署说明
+│   │       └── scripts/                 # 自动化部署脚本
+│   │           ├── deploy.sh            # 主部署脚本（多子命令）
+│   │           ├── build_engine.sh      # TensorRT 引擎构建脚本
+│   │           ├── benchmark.sh         # 性能测试脚本
+│   │           └── test_client.py       # 增强客户端测试工具
 │   │
 │   └── 🔹 MLC-LLM 路线（1.5B/3B）
 │       └── MLC_llm_deploy/
@@ -172,24 +179,48 @@ print(result.shape)   # (1, 1000)
 
 ### 🤖 场景二：Qwen2.5-0.5B 对话推理（TensorRT-Edge-LLM）
 
-#### 1. 准备模型和引擎
-
-模型已部署在 `qwen25_0.5b_trt/` 目录，包含：
-- TensorRT 引擎（`engine_new/llm.engine`）
-- 原始模型文件（`Qwen2.5-0.5B-Instruct/`）
-
-#### 2. 启动 HTTP 服务器
+#### 1. 自动化部署（推荐）
 
 ```bash
 cd Edge_llm_deploy
-python3 llm_server.py \
-    --engine-dir     ../qwen25_0.5b_trt/engine_new \
-    --llm-inference  ../TensorRT-Edge-LLM/build/examples/llm/llm_inference \
-    --plugin         ../TensorRT-Edge-LLM/build/libNvInfer_edgellm_plugin.so \
-    --host 0.0.0.0 --port 8000
+
+# 环境检查
+./scripts/deploy.sh check
+
+# 一键完整部署（从零到可用）
+./scripts/deploy.sh all
+
+# 启动服务
+./scripts/deploy.sh start-server
 ```
 
-#### 3. 客户端调用（兼容 OpenAI API）
+#### 2. 手动部署（详细步骤）
+
+如需手动部署或了解详细流程，请查看 `Edge_llm_deploy/README.md`：
+
+```bash
+# 分步部署
+./scripts/deploy.sh install-python   # 安装 Python 工具链
+./scripts/deploy.sh install-cpp      # 编译 C++ Runtime
+./scripts/deploy.sh export-onnx      # 导出 ONNX 模型
+./scripts/deploy.sh build-engine     # 构建 TensorRT 引擎
+./scripts/deploy.sh start-server     # 启动 HTTP 服务
+```
+
+#### 3. 验证部署
+
+```bash
+# 测试服务
+./scripts/deploy.sh test
+
+# 性能测试
+./scripts/deploy.sh benchmark
+
+# 交互式对话
+./scripts/test_client.py --mode interactive
+```
+
+#### 4. 客户端调用（兼容 OpenAI API）
 
 ```python
 from openai import OpenAI
@@ -205,12 +236,6 @@ response = client.chat.completions.create(
 )
 print(response.choices[0].message.content)
 ```
-
-#### 4. 性能测试
-
-```bash
-cd qwen25_0.5b_trt
-./run_perf_test.sh    # 自动化性能测试
 ```
 
 ---
@@ -329,10 +354,11 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 
 | 需求场景 | 推荐方案 | 理由 |
 |----------|----------|------|
-| 实时响应（<100ms） | TensorRT-Edge-LLM 0.5B | 轻量级，低延迟，API 兼容 |
+| 实时响应（<100ms） | TensorRT-Edge-LLM 0.5B | 轻量级，低延迟，API 兼容，自动化部署 |
 | 高质量对话 | MLC-LLM 1.5B | 智能更强，60 tok/s 速度优秀 |
 | 复杂推理任务 | MLC-LLM 3B | 最佳智能表现，25-35 tok/s 可接受 |
 | 图像识别 | TensorRT ResNet18 FP16 | 15x 加速，生产环境推荐 |
+| 快速集成 | TensorRT-Edge-LLM 0.5B | OpenAI 兼容，一键部署脚本 |
 
 ### 设备选择指南
 
@@ -353,4 +379,4 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 
 ---
 
-**测试设备**：NVIDIA Jetson Orin ｜ **TensorRT**：10.3.0 ｜ **TensorRT-Edge-LLM**：0.6.0 ｜ **MLC-LLM**：0.20.0 ｜ **更新日期**：2026-08-14
+**测试设备**：NVIDIA Jetson Orin ｜ **TensorRT**：10.3.0 ｜ **TensorRT-Edge-LLM**：0.6.0 ｜ **MLC-LLM**：0.20.0 ｜ **更新日期**：2026-08-18
