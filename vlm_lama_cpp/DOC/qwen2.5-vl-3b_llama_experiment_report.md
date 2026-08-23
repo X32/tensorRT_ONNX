@@ -119,6 +119,8 @@ curl http://localhost:8080/v1/chat/completions \
 - **响应时间**: 158.76ms (prompt), 981.08ms (generation)
 - **内存占用**: 稳定运行在 8GB 限制内
 
+![VLM 服务器运行状态](qwen2.5-vl-3B_server.jpg)
+
 ---
 
 ### 4. 视觉理解能力测试
@@ -167,6 +169,8 @@ python test_vlm.py --url http://localhost:8080 --image ./test.jpg \
   - 总耗时: 6.99s
   - 生成速度: 16.7 tok/s
   - Token使用: 117 completion + 430 prompt = 547 total
+
+![图文转换测试结果](img2text.jpg)
 
 ---
 
@@ -280,6 +284,8 @@ python test_vlm.py --image ./test.jpg --resize 768
 # OCR 能力测试
 python test_ocr.py --image ./document.jpg --type document
 ```
+
+![OCR 文字识别测试](ocrtest.jpg)
 
 ### 实验时间
 - **开始**: 2024年8月23日
