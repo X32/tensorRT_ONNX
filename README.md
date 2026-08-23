@@ -385,8 +385,8 @@ python test_vlm.py --image ./large.jpg --resize 768
 # OCR 文字识别
 python test_ocr.py --image ./document.jpg --type document
 
-![ocrTest](img/ocrtest.jpg)
 ```
+![ocrTest](img/ocrtest.jpg)
 
 #### 5. API 调用示例
 
