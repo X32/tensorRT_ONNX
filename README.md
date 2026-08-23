@@ -9,12 +9,24 @@
 - **🔧 技术对比**：提供运行时优化（TensorRT-Edge-LLM）与编译时优化（MLC-LLM）两大技术路线的实测对比
 - **📊 完整方案**：覆盖从环境搭建、模型转换、引擎构建到 HTTP 服务部署的全流程
 - **🌐 生产就绪**：Docker 容器化部署，OpenAI API 兼容接口，支持快速集成到实际应用
+- **👁️ 多模态支持**：基于 llama.cpp 部署完整的视觉语言模型，支持图像理解、OCR 和多模态对话
 
 ![项目架构](img/2026-08-18_13-00.png)
 
 ---
 
 ## 🚀 核心成果与部署能力
+
+### 👁️ 视觉语言模型：Qwen2.5-VL-3B 多模态理解
+
+| 能力类型       | 推理性能     | 内存占用 | 模型大小 | 应用场景                |
+| -------------- | ------------ | -------- | -------- | ----------------------- |
+| **纯文本生成** | 19.4 tok/s   | ~3GB     | 1.8 GB   | 对话、知识问答          |
+| **图像理解**   | 16.7 tok/s   | ~4.5 GB  | 2.8 GB   | 场景描述、物体识别      |
+| **OCR 识别**   | 15-20 tok/s  | ~4 GB    | 2.8 GB   | 文字提取、表格识别      |
+| **多模态对话** | 10-15 tok/s  | ~5 GB    | 2.8 GB   | 图文交互、复杂推理      |
+
+> 基于 llama.cpp 在 Jetson 8GB 上部署完整多模态模型，**支持图像理解、OCR 和多模态对话**，适用于边缘智能应用。
 
 ### 🖼️ 计算机视觉：ResNet18 图像分类
 
@@ -47,20 +59,31 @@
 
 > 基于 MLC-LLM v0.20.0 编译器路线，PC 交叉编译 + Jetson 运行，突破 8GB 内存限制，支持更大参数模型。
 
+#### llama.cpp 路线：Qwen2.5-VL-3B 多模态视觉理解
+
+| 模型               | 模型大小 | 内存占用 | 推理能力                   | 部署方式               |
+| ------------------ | -------- | -------- | -------------------------- | ---------------------- |
+| **Qwen2.5-VL-3B** | ~2.8 GB  | ~4.5 GB  | 图像理解、OCR、多模态对话 | llama.cpp + HTTP API  |
+| Q4_K_M 量化        | 1.8 GB   | -        | 平衡精度与速度             | GPU 加速推理          |
+
+> 基于 llama.cpp 在 Jetson 8GB 上部署完整多模态模型，支持图像理解和文字识别，**纯文本生成 19.4 tok/s，图像理解 16.7 tok/s**。
+
+![speed](img/img2text.jpg)
 ---
 
 ## 🛠️ 环境信息
 
-| 项目              | 版本                                              |
-| ----------------- | ------------------------------------------------- |
-| 设备              | NVIDIA Jetson Orin（ARM64）                       |
-| 系统              | Ubuntu 22.04 + JetPack 6.x（L4T 36.5）            |
-| CUDA              | 12.6                                              |
-| TensorRT          | 10.3.0                                            |
-| PyTorch           | 2.x（jetson-containers 镜像内置）                 |
-| TensorRT-Edge-LLM | 0.6.0                                             |
-| MLC-LLM           | 0.20.0                                            |
-| 部署方式          | Docker 容器（基于 `dustynv/jetson-containers`） |
+| 项目               | 版本                                              |
+| ------------------ | ------------------------------------------------- |
+| 设备               | NVIDIA Jetson Orin（ARM64）                       |
+| 系统               | Ubuntu 22.04 + JetPack 6.x（L4T 36.5）            |
+| CUDA               | 12.6                                              |
+| TensorRT           | 10.3.0                                            |
+| PyTorch            | 2.x（jetson-containers 镜像内置）                 |
+| TensorRT-Edge-LLM  | 0.6.0                                             |
+| MLC-LLM            | 0.20.0                                            |
+| llama.cpp          | 最新稳定版                                        |
+| 部署方式           | Docker 容器（基于 `dustynv/jetson-containers`） |
 
 ---
 
@@ -105,20 +128,30 @@ tensorRT/
 │   │           ├── benchmark.sh         # 性能测试脚本
 │   │           └── test_client.py       # 增强客户端测试工具
 │   │
-│   └── 🔹 MLC-LLM 路线（1.5B/3B）
-│       └── MLC_llm_deploy/
-│           ├── README.md                # MLC 部署套件说明
-│           ├── scripts/                 # 自动化部署脚本
-│           │   ├── jetson-run.sh         # Jetson 快速启动脚本
-│           │   ├── benchmark.sh          # 性能基线采集
-│           │   └── example-3b.sh         # 3B 模型部署示例
-│           ├── integration/              # 系统集成
-│           │   ├── llm_gateway.py        # FastAPI 网关
-│           │   └── ros2/                 # ROS2 节点集成
-│           └── DOC/                      # 技术文档
-│               ├── MLC-LLM-Qwen2.5-1.5B-3B-Jetson实验报告.md
-│               ├── Jetson Orin 8GB 部署 Qwen2.5 1.5B_3B：MLC-LLM 实操文档.md
-│               └── Qwen2.5-3B部署指南.md
+│   ├── 🔹 MLC-LLM 路线（1.5B/3B）
+│   │   └── MLC_llm_deploy/
+│   │       ├── README.md                # MLC 部署套件说明
+│   │       ├── scripts/                 # 自动化部署脚本
+│   │       │   ├── jetson-run.sh         # Jetson 快速启动脚本
+│   │       │   ├── benchmark.sh          # 性能基线采集
+│   │       │   └── example-3b.sh         # 3B 模型部署示例
+│   │       ├── integration/              # 系统集成
+│   │       │   ├── llm_gateway.py        # FastAPI 网关
+│   │       │   └── ros2/                 # ROS2 节点集成
+│   │       └── DOC/                      # 技术文档
+│   │           ├── MLC-LLM-Qwen2.5-1.5B-3B-Jetson实验报告.md
+│   │           ├── Jetson Orin 8GB 部署 Qwen2.5 1.5B_3B：MLC-LLM 实操文档.md
+│   │           └── Qwen2.5-3B部署指南.md
+│   │
+│   └── 🔹 llama.cpp 路线（多模态 3B）
+│       └── vlm_lama_cpp/
+│           ├── README.md                # VLM 部署完整指南
+│           ├── test_vlm.py              # 多模态综合测试脚本
+│           ├── test_ocr.py              # OCR 专项测试脚本
+│           ├── DOC/                     # 技术文档
+│           │   ├── qwen2.5-vl-3B_deploy_log.md          # 部署日志
+│           │   └── qwen2.5-vl-3b_llama_experiment_report.md  # 实验报告
+│           └── *.jpg                    # 测试图片文件
 │
 ├── 📚 完整文档
 │   └── DOC/
@@ -295,6 +328,94 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 
 ---
 
+### 👁️ 场景四：Qwen2.5-VL-3B 多模态视觉理解（llama.cpp）
+
+#### 1. 编译 llama.cpp
+
+```bash
+# 安装依赖
+sudo apt update && sudo apt install -y build-essential cmake git curl
+
+# 克隆并编译（启用 CUDA）
+git clone https://github.com/ggml-org/llama.cpp.git
+cd llama.cpp
+cmake -B build -DGGML_CUDA=ON
+cmake --build build --config Release -j $(nproc)
+```
+
+#### 2. 下载模型
+
+```bash
+# 下载主模型
+huggingface-cli download Taoufik/Qwen2.5-VL-3B-Instruct-Q4_K_M-GGUF \
+  --local-dir ./qwen_vl_gguf/
+
+# 下载视觉投影组件
+wget https://huggingface.co/Mungert/Qwen2.5-VL-3B-Instruct-GGUF/resolve/main/Qwen2.5-VL-3B-Instruct-mmproj-f16.gguf \
+  -P ./qwen_vl_gguf/
+```
+
+#### 3. 启动多模态服务
+
+```bash
+cd llama.cpp
+
+# 启动服务器（包含视觉功能）
+./build/bin/llama-server \
+  -m ./qwen_vl_gguf/qwen2.5-vl-3b-instruct-q4_k_m.gguf \
+  --mmproj ./qwen_vl_gguf/Qwen2.5-VL-3B-Instruct-mmproj-f16.gguf \
+  --ctx-size 3072 \
+  -ngl 99 \
+  --host 127.0.0.1 \
+  --port 8080
+```
+
+![server](img/qwen2.5-vl-3B_server.jpg)
+#### 4. 测试视觉理解
+
+```bash
+cd ../vlm_lama_cpp
+
+# 图像理解测试
+python test_vlm.py --image ./test.jpg --prompt "描述这张图片的内容"
+
+# 自动缩放图片（避免超上下文）
+python test_vlm.py --image ./large.jpg --resize 768
+
+# OCR 文字识别
+python test_ocr.py --image ./document.jpg --type document
+
+![ocrTest](img/ocrtest.jpg)
+```
+
+#### 5. API 调用示例
+
+```bash
+# 纯文本对话
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{"role": "user", "content": "你好"}],
+    "max_tokens": 256
+  }'
+
+# 图像理解（base64 编码）
+IMG_BASE64=$(base64 -w 0 image.jpg)
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{
+      "role": "user",
+      "content": [
+        {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,'"$IMG_BASE64"'"}},
+        {"type": "text", "text": "描述这张图片"}
+      ]
+    }]
+  }'
+```
+
+---
+
 ## 📚 文档导航
 
 ### 计算机视觉（ResNet18）
@@ -325,6 +446,14 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 | 🔧[Qwen2.5-3B 部署指南](MLC_llm_deploy/DOC/Qwen2.5-3B部署指南.md)                                              | 3B 模型特定配置说明                     |
 | 🌐[MLC_llm_deploy 说明](MLC_llm_deploy/README.md)                                                              | 部署套件使用说明与系统集成              |
 
+### 视觉语言模型（llama.cpp）
+
+| 文档                                                                         | 说明                               |
+| ---------------------------------------------------------------------------- | ---------------------------------- |
+| 📖[VLM 部署指南](vlm_lama_cpp/README.md)                                      | llama.cpp 部署 Qwen2.5-VL 完整指南 |
+| 🔬[VLM 实验报告](vlm_lama_cpp/DOC/qwen2.5-vl-3b_llama_experiment_report.md)  | 多模态模型部署实验数据分析         |
+| 📋[VLM 部署日志](vlm_lama_cpp/DOC/qwen2.5-vl-3B_deploy_log.md)               | 详细部署过程记录                   |
+
 ---
 
 ## 🔑 关键技术点
@@ -352,29 +481,40 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 - **多模型支持**：1.5B（60 tok/s）和 3B（25-35 tok/s）按需选择
 - **系统集成**：FastAPI 网关 + ROS2 节点，支持机器人应用
 
+### 视觉语言模型部署（llama.cpp）
+
+- **多模态支持**：基于 llama.cpp 的完整 VLM 部署，支持图像理解和文字识别
+- **双组件架构**：主模型 + mmproj 视觉投影，支持复杂视觉任务
+- **GPU 加速**：CUDA 后端优化，纯文本 19.4 tok/s，图像理解 16.7 tok/s
+- **灵活配置**：支持图片缩放、上下文调整，适应不同应用需求
+- **OpenAI 兼容**：标准 HTTP API，易于集成到现有系统
+
 ---
 
 ## 🎯 部署建议
 
 ### 技术路线选择
 
-| 需求场景           | 推荐方案               | 理由                                 |
-| ------------------ | ---------------------- | ------------------------------------ |
-| 实时响应（<100ms） | TensorRT-Edge-LLM 0.5B | 轻量级，低延迟，API 兼容，自动化部署 |
-| 高质量对话         | MLC-LLM 1.5B           | 智能更强，60 tok/s 速度优秀          |
-| 复杂推理任务       | MLC-LLM 3B             | 最佳智能表现，25-35 tok/s 可接受     |
-| 图像识别           | TensorRT ResNet18 FP16 | 15x 加速，生产环境推荐               |
-| 快速集成           | TensorRT-Edge-LLM 0.5B | OpenAI 兼容，一键部署脚本            |
+| 需求场景              | 推荐方案                   | 理由                                     |
+| --------------------- | -------------------------- | ---------------------------------------- |
+| 实时响应（<100ms）    | TensorRT-Edge-LLM 0.5B      | 轻量级，低延迟，API 兼容，自动化部署     |
+| 高质量对话            | MLC-LLM 1.5B               | 智能更强，60 tok/s 速度优秀              |
+| 复杂推理任务          | MLC-LLM 3B                 | 最佳智能表现，25-35 tok/s 可接受         |
+| 图像识别              | TensorRT ResNet18 FP16     | 15x 加速，生产环境推荐                   |
+| 快速集成              | TensorRT-Edge-LLM 0.5B      | OpenAI 兼容，一键部署脚本                |
+| **视觉-语言多模态**   | **llama.cpp VLM 3B**        | **图像理解、OCR、多模态对话，边缘完整支持** |
+| **文字识别与理解**    | **llama.cpp VLM 3B**        | **专用 OCR 能力，表格和文档理解优秀**    |
 
 ### 设备选择指南
 
-| 设备内存   | 推荐模型                | 用途场景              |
-| ---------- | ----------------------- | --------------------- |
-| 4GB        | ResNet18 FP16/INT8      | 图像分类、目标检测    |
-| 8GB        | Qwen2.5-0.5B + ResNet18 | 对话推理 + 计算机视觉 |
-| 8GB (优化) | Qwen2.5-1.5B (MLC)      | 高质量对话 + 实时响应 |
-| 8GB (极限) | Qwen2.5-3B (MLC)        | 复杂推理 + 专业任务   |
-| 16GB+      | 多模型组合              | 复杂多模态应用        |
+| 设备内存   | 推荐模型                        | 用途场景                    |
+| ---------- | ------------------------------- | --------------------------- |
+| 4GB        | ResNet18 FP16/INT8             | 图像分类、目标检测           |
+| 8GB        | Qwen2.5-0.5B + ResNet18        | 对话推理 + 计算机视觉        |
+| 8GB (优化) | Qwen2.5-1.5B (MLC)             | 高质量对话 + 实时响应        |
+| 8GB (极限) | Qwen2.5-3B (MLC)               | 复杂推理 + 专业任务          |
+| 8GB (多模) | **Qwen2.5-VL-3B (llama.cpp)** | **视觉理解 + OCR + 多模态对话** |
+| 16GB+      | 多模型组合                      | 复杂多模态应用               |
 
 ### 精度选择建议
 
@@ -382,7 +522,8 @@ ros2 run <pkg> mlc_llm_client_node --ros-args -p gateway_url:=http://localhost:8
 - **Qwen2.5-0.5B**：适合 **8GB 设备**，API 服务首选
 - **Qwen2.5-1.5B**：MLC 路线推荐，**性能与资源最佳平衡**
 - **Qwen2.5-3B**：复杂推理任务，需要参数调优（`MAX_SEQ_LEN=2048`）
+- **Qwen2.5-VL-3B**：多模态视觉理解，**Q4_K_M 量化**，支持图像和文字处理
 
 ---
 
-**测试设备**：NVIDIA Jetson Orin ｜ **TensorRT**：10.3.0 ｜ **TensorRT-Edge-LLM**：0.6.0 ｜ **MLC-LLM**：0.20.0 ｜ **更新日期**：2026-08-18
+**测试设备**：NVIDIA Jetson Orin ｜ **TensorRT**：10.3.0 ｜ **TensorRT-Edge-LLM**：0.6.0 ｜ **MLC-LLM**：0.20.0 ｜ **llama.cpp**：最新版 ｜ **更新日期**：2024-08-23

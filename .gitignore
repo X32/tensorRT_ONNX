@@ -82,6 +82,12 @@ temp/
 !vlm_lama_cpp/*.png
 !vlm_lama_cpp/*.gif
 
+# 也允许 img 目录中的图片文件
+!img/*.jpg
+!img/*.jpeg
+!img/*.png
+!img/*.gif
+
 # 数据文件
 *.csv
 *.json.gz
