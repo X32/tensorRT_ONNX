@@ -76,6 +76,12 @@ temp/
 *.mp4
 *.avi
 
+# 但允许 vlm_lama_cpp 项目中的测试图片
+!vlm_lama_cpp/*.jpg
+!vlm_lama_cpp/*.jpeg
+!vlm_lama_cpp/*.png
+!vlm_lama_cpp/*.gif
+
 # 数据文件
 *.csv
 *.json.gz
