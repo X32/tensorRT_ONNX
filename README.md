@@ -144,7 +144,7 @@ tensorRT/
 │   │           └── Qwen2.5-3B部署指南.md
 │   │
 │   └── 🔹 llama.cpp 路线（多模态 3B）
-│       └── vlm_lama_cpp/
+│       └── vlm_lama_cpp_deploy/
 │           ├── README.md                # VLM 部署完整指南
 │           ├── test_vlm.py              # 多模态综合测试脚本
 │           ├── test_ocr.py              # OCR 专项测试脚本
@@ -374,7 +374,7 @@ cd llama.cpp
 #### 4. 测试视觉理解
 
 ```bash
-cd ../vlm_lama_cpp
+cd ../vlm_lama_cpp_deploy
 
 # 图像理解测试
 python test_vlm.py --image ./test.jpg --prompt "描述这张图片的内容"
@@ -450,9 +450,9 @@ curl http://localhost:8080/v1/chat/completions \
 
 | 文档                                                                         | 说明                               |
 | ---------------------------------------------------------------------------- | ---------------------------------- |
-| 📖[VLM 部署指南](vlm_lama_cpp/README.md)                                      | llama.cpp 部署 Qwen2.5-VL 完整指南 |
-| 🔬[VLM 实验报告](vlm_lama_cpp/DOC/qwen2.5-vl-3b_llama_experiment_report.md)  | 多模态模型部署实验数据分析         |
-| 📋[VLM 部署日志](vlm_lama_cpp/DOC/qwen2.5-vl-3B_deploy_log.md)               | 详细部署过程记录                   |
+| 📖[VLM 部署指南](vlm_lama_cpp_deploy/README.md)                                      | llama.cpp 部署 Qwen2.5-VL 完整指南 |
+| 🔬[VLM 实验报告](vlm_lama_cpp_deploy/DOC/qwen2.5-vl-3b_llama_experiment_report.md)  | 多模态模型部署实验数据分析         |
+| 📋[VLM 部署日志](vlm_lama_cpp_deploy/DOC/qwen2.5-vl-3B_deploy_log.md)               | 详细部署过程记录                   |
 
 ---
 

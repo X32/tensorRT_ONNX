@@ -17,7 +17,7 @@
 ## 项目结构
 
 ```
-vlm_lama_cpp/
+vlm_lama_cpp_deploy/
 ├── DOC/                                    # 文档目录
 │   ├── qwen2.5-vl-3B_deploy_log.md        # 部署日志
 │   └── qwen2.5-vl-3b_llama_experiment_report.md  # 实验报告
