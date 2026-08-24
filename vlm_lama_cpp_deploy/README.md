@@ -18,14 +18,19 @@
 
 ```
 vlm_lama_cpp_deploy/
-├── DOC/                                    # 文档目录
-│   ├── qwen2.5-vl-3B_deploy_log.md        # 部署日志
-│   └── qwen2.5-vl-3b_llama_experiment_report.md  # 实验报告
-├── test_vlm.py                             # VLM 测试脚本
-├── test_ocr.py                             # OCR 专项测试
-├── test.jpg                                # 测试图片
-├── test_resized.jpg                        # 缩放后测试图片
-└── document.jpg                            # OCR 测试文档
+├── DOC/                                            # 文档目录
+│   ├── qwen2.5-vl-3B_deploy_log.md                # 部署日志
+│   ├── qwen2.5-vl-3b_llama_experiment_report.md   # 实验报告
+│   ├── performance_data.md                        # 性能测试数据（完整）
+│   ├── bench_table.md                             # 性能展示表（精简）
+│   ├── data.log / data1.log                       # 原始测试数据
+│   └── *.jpg                                      # 测试截图
+├── test_vlm.py                                     # VLM 单次测试脚本
+├── test_ocr.py                                     # OCR 专项测试
+├── bench_auto.py                                   # 自动化基准测试（多轮 + 绕缓存 + 内存采样）
+├── test.jpg                                        # 测试图片
+├── test_resized.jpg                                # 缩放后测试图片
+└── document.jpg                                    # OCR 测试文档
 ```
 
 ## 快速开始
@@ -152,16 +157,57 @@ python test_ocr.py --image ./table.jpg --type table
 python test_ocr.py --image ./doc.jpg --type document
 ```
 
+### bench_auto.py - 自动化基准测试（推荐）
+
+**解决的问题**：llama-server 有 prompt cache，重复提问会导致 `prompt_n=1`，测不出真实 prefill 速度。
+
+**方案**：每次提问自动附加唯一编号 + 时间戳，确保不命中缓存。
+
+**功能**:
+- 纯文本 / 图文测试各 N 轮，每轮唯一提问
+- 自动检测缓存命中（输入 token 骤降时标记 ⚠️）
+- 全程后台采样内存峰值
+- 输出可直接粘贴到文档的 Markdown 汇总表 + 各轮明细
+
+**用法**:
+```bash
+# 默认: 纯文本 + 图文 各 3 轮
+python bench_auto.py
+
+# 纯文本 5 轮
+python bench_auto.py --rounds 5 --no-image
+
+# 图文 3 轮, 指定图片
+python bench_auto.py --no-text --image ./test.jpg --resize 768
+```
+
+> 测真实图片 prefill 时每组需换不同图片（同一张图的视觉编码也会被服务器缓存）。
+
+**测试脚本选择指南**:
+
+| 需求 | 脚本 |
+|------|------|
+| 快速验证服务是否正常 | `test_vlm.py` |
+| 正式性能基准（出报告数据） | `bench_auto.py` |
+| OCR / 文档识别测试 | `test_ocr.py` |
+
 ## 性能基准
 
-### Jetson Orin 8GB 性能数据
+### Jetson Orin 8GB 性能数据（自动化基准 bench_auto.py，2026-08-24）
 
-| 任务类型 | Prompt速度 | 生成速度 | 内存占用 | 延迟 |
-|---------|-----------|---------|---------|------|
-| 纯文本生成 | 157.5 t/s | 19.4 t/s | <3GB | ~1.1s |
-| 图像理解 | 61.5 t/s | 16.7 t/s | ~4.5GB | ~7.0s |
-| CLI文本 | 147.6 t/s | 23.1 t/s | <3GB | ~2.1s |
-| CLI图像 | 120.1 t/s | 9.0 t/s | ~4GB | ~8.5s |
+| 任务类型 | 功耗 | Prefill (tok/s) | TTFT (ms) | Decode (tok/s) | 常驻内存 |
+|---------|:---:|:---:|:---:|:---:|:---:|
+| 纯文本 | 15W | 233.4 | 116 | 15.3 | ~5.4GB |
+| 纯文本 | **25W** | **372.0** | **72** | **23.9** | ~5.4GB |
+| 图片理解 (768px) | 15W | 180.2 | 2525 | 15.2 | ~7.2GB |
+| 图片理解 (768px) | **25W** | **268.6** | **1694** | **23.5** | ~7.3GB |
+
+**关键结论**:
+- 25W（MAXN）模式比 15W 全面提升约 5~6 成（prefill +49~59%、decode +55~56%、TTFT -33~38%）
+- 图片开销集中在输入阶段（视觉编码），生成速度不受图片影响
+- 同一张图第二次请求 TTFT 从 1694ms 降至 73ms（图片缓存，约 23 倍加速）
+
+完整数据见 [performance_data.md](DOC/performance_data.md)，展示用精简表见 [bench_table.md](DOC/bench_table.md)。
 
 ### 模型规格
 
@@ -263,6 +309,9 @@ curl http://localhost:8080/v1/chat/completions \
 
 - [部署日志](DOC/qwen2.5-vl-3B_deploy_log.md) - 详细的部署过程记录
 - [实验报告](DOC/qwen2.5-vl-3b_llama_experiment_report.md) - 完整的实验分析报告
+- [性能测试数据](DOC/performance_data.md) - 完整性能数据（含 CLI/Server、15W/25W 全场景）
+- [性能展示表](DOC/bench_table.md) - 精简展示表（含功耗对比和关键结论）
+- [CSDN 技术博客](DOC/Jetson_Orin_VLM_CSDN_Blog.md) - 口语化技术分享
 - [llama.cpp 文档](https://github.com/ggerganov/llama.cpp) - 官方文档
 - [Qwen2.5-VL 模型卡](https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct) - 模型详情
 
@@ -294,6 +343,6 @@ curl http://localhost:8080/v1/chat/completions \
 
 ---
 
-**最后更新**: 2024年8月23日
-**版本**: v1.0
+**最后更新**: 2026年8月24日
+**版本**: v1.1（新增自动化基准测试与完整性能数据）
 **维护者**: Edge AI Lab
